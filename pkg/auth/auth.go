@@ -1,12 +1,15 @@
 package auth
 
+import "encoding/xml"
+
 type MerchantAuthentication struct {
-	Name           string `json:"name"`
-	TransactionKey string `json:"transactionKey"`
+	Name           string `xml:"name"`
+	TransactionKey string `xml:"transactionKey"`
 }
 type AuthenticateTestRequest struct {
-	MerchantAuthentication MerchantAuthentication `json:"merchantAuthentication"`
-	RefId                  *string                `json:"refId,omitempty"`
+	XMLName                xml.Name               `xml:"AnetApi/xml/v1/schema/AnetApiSchema.xsd authenticateTestRequest"`
+	MerchantAuthentication MerchantAuthentication `xml:"merchantAuthentication"`
+	RefId                  *string                `xml:"refId,omitempty"`
 }
 
 type ResultCode string
@@ -17,16 +20,16 @@ const (
 )
 
 type Message struct {
-	Code string `json:"code"`
-	Text string `json:"text"`
+	Code string `xml:"code"`
+	Text string `xml:"text"`
 }
 
 type Messages struct {
-	ResultCode ResultCode `json:"resultCode"`
-	Message    []Message  `json:"message"`
+	ResultCode ResultCode `xml:"resultCode"`
+	Message    []Message  `xml:"message"`
 }
 
 type AuthenticateTestResponse struct {
-	RefId    *string   `json:"refId,omitempty"`
-	Messages *Messages `json:"messages,omitempty"`
+	RefId    *string   `xml:"refId,omitempty"`
+	Messages *Messages `xml:"messages,omitempty"`
 }

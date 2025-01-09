@@ -4,7 +4,7 @@ import (
 	"authnet/pkg/auth"
 	"authnet/pkg/config"
 	"bytes"
-	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"io"
 	"net"
@@ -59,13 +59,12 @@ func (c *AuthNetClient) AuthenticateTest() (*auth.AuthenticateTestResponse, erro
 			TransactionKey: c.config.Auth.TransactionId,
 		},
 	}
-	requestBody := requestToBody("authenticateTestRequest", testRequest)
-	bodyBytes, mErr := json.Marshal(requestBody)
+	bodyBytes, mErr := xml.Marshal(testRequest)
 	if mErr != nil {
 		return nil, errors.Join(errors.New("unable to marshal request body"), mErr)
 	}
 
-	response, reqErr := c.httpClient.Post(c.apiUrl, "application/json", bytes.NewReader(bodyBytes))
+	response, reqErr := c.httpClient.Post(c.apiUrl, "text/xml", bytes.NewReader(bodyBytes))
 	if reqErr != nil {
 		return nil, errors.Join(errors.New("unable to make http request"), reqErr)
 	}
@@ -78,8 +77,8 @@ func (c *AuthNetClient) AuthenticateTest() (*auth.AuthenticateTestResponse, erro
 	}
 
 	var testResponse auth.AuthenticateTestResponse
-	resBytes = bytes.TrimPrefix(resBytes, []byte("\xef\xbb\xbf")) // remove byte-order mark (BOM)
-	if uErr := json.Unmarshal(resBytes, &testResponse); uErr != nil {
+	//resBytes = bytes.TrimPrefix(resBytes, []byte("\xef\xbb\xbf")) // remove byte-order mark (BOM)
+	if uErr := xml.Unmarshal(resBytes, &testResponse); uErr != nil {
 		return nil, errors.Join(errors.New("unable to unmarshal response body"), reqErr)
 	}
 	return &testResponse, nil
