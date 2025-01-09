@@ -46,12 +46,6 @@ func NewAuthNetClient(config config.Config) AuthNetClient {
 	}
 }
 
-func requestToBody(requestName string, request any) map[string]any {
-	return map[string]any{
-		requestName: request,
-	}
-}
-
 func (c *AuthNetClient) AuthenticateTest() (*auth.AuthenticateTestResponse, error) {
 	testRequest := auth.AuthenticateTestRequest{
 		MerchantAuthentication: auth.MerchantAuthentication{
@@ -77,7 +71,6 @@ func (c *AuthNetClient) AuthenticateTest() (*auth.AuthenticateTestResponse, erro
 	}
 
 	var testResponse auth.AuthenticateTestResponse
-	//resBytes = bytes.TrimPrefix(resBytes, []byte("\xef\xbb\xbf")) // remove byte-order mark (BOM)
 	if uErr := xml.Unmarshal(resBytes, &testResponse); uErr != nil {
 		return nil, errors.Join(errors.New("unable to unmarshal response body"), reqErr)
 	}
