@@ -1,0 +1,3 @@
+# Configuration File
+
+GoGo Authnet
