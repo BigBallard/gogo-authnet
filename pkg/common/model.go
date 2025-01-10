@@ -30,10 +30,14 @@ type FingerPrintType struct {
 // The following fields are mutually exclusive and one is required for request: TransactionKey, SessionToken, Password,
 // ImpersonationAuthentication, FingerPrint, ClientKey, and AccessToken. Validation will check for one of these being
 // set and will result in a validation error if more than one or none are set.
+//
+// The following fields are required: Name and TransactionKey.
 type MerchantAuthenticationType struct {
-	Name                        string                           `xml:"name,omitempty" validation:"max=30"`
-	TransactionKey              string                           `xml:"transactionKey,omitempty" validation:"max=16"`
-	SessionToken                string                           `xml:"sessionToken,omitempty"`
+	// Name the merchant's unique API Login ID.
+	Name string `xml:"name,omitempty" validation:"max=25"`
+	// TransactionKey the merchant's unique Transaction Key.
+	TransactionKey              string                           `xml:"transactionKey" validation:"required,max=16"`
+	SessionToken                string                           `xml:"sessionToken" validation:"required,max=20"`
 	Password                    string                           `xml:"password,omitempty" validation:"max=40"`
 	ImpersonationAuthentication *ImpersonationAuthenticationType `xml:"impersonationAuthentication,omitempty"`
 	FingerPrint                 *FingerPrintType                 `xml:"fingerPrint,omitempty"`

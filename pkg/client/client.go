@@ -53,26 +53,30 @@ func (c *AuthNetClient) AuthenticateTest() (*common.AuthenticateTestResponse, er
 			TransactionKey: c.config.Auth.TransactionId,
 		},
 	}
-	bodyBytes, mErr := xml.Marshal(testRequest)
-	if mErr != nil {
-		return nil, errors.Join(errors.New("unable to marshal request body"), mErr)
-	}
+	var testResponse common.AuthenticateTestResponse
+	rErr := c.SendRequest(testRequest, &testResponse)
+	return &testResponse, rErr
+}
 
+// SendRequest takes a request type instance and a response type instance. req can be passed either by reference or by
+// value. The res however, is required to be a reference due to the unmarshalling phase of the request.
+func (c *AuthNetClient) SendRequest(req any, res any) error {
+	bodyBytes, mErr := xml.Marshal(req)
+	if mErr != nil {
+		return errors.Join(errors.New("unable to marshal request body"), mErr)
+	}
 	response, reqErr := c.httpClient.Post(c.apiUrl, "text/xml", bytes.NewReader(bodyBytes))
 	if reqErr != nil {
-		return nil, errors.Join(errors.New("unable to make http request"), reqErr)
+		return errors.Join(errors.New("unable to make http request"), reqErr)
 	}
 	defer response.Body.Close()
-
 	resBytes := make([]byte, response.ContentLength)
 	nRead, readErr := response.Body.Read(resBytes)
 	if nRead != int(response.ContentLength) && readErr == io.EOF {
-		return nil, errors.Join(errors.New("unable to read response body"), reqErr)
+		return errors.Join(errors.New("unable to read response body"), reqErr)
 	}
-
-	var testResponse common.AuthenticateTestResponse
-	if uErr := xml.Unmarshal(resBytes, &testResponse); uErr != nil {
-		return nil, errors.Join(errors.New("unable to unmarshal response body"), reqErr)
+	if uErr := xml.Unmarshal(resBytes, res); uErr != nil {
+		return errors.Join(errors.New("unable to unmarshal response body"), reqErr)
 	}
-	return &testResponse, nil
+	return nil
 }
