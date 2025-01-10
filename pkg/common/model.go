@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-// AnetApiRequestType defines common properties associated with all API method requests.
-type AnetApiRequestType struct {
+// ANetApiRequest defines common properties associated with all API method requests.
+type ANetApiRequest struct {
 	MerchantAuthentication MerchantAuthenticationType `xml:"merchantAuthentication" validation:"required"`
 	ClientId               string                     `xml:"clientId,omitempty" validation:"max=30"`
 	RefId                  string                     `xml:"refId,omitempty" validation:"max=20"`
@@ -362,7 +362,7 @@ type AuthorizationIndicatorType struct {
 }
 
 type TransactionRequestType struct {
-	AnetApiRequestType
+	ANetApiRequest
 	TransactionType            string                      `xml:"transactionType,omitempty"`
 	Amount                     *float64                    `xml:"amount,omitempty"`
 	CurrencyCode               string                      `xml:"currencyCode,omitempty"`
@@ -399,6 +399,119 @@ type TransactionRequestType struct {
 	OtherTax                   *OtherTaxType               `xml:"otherTax,omitempty"`
 	ShipFrom                   *NameAndAddressType         `xml:"shipFrom,omitempty"`
 	AuthorizationIndicatorType *AuthorizationIndicatorType `xml:"authorizationIndicatorType,omitempty"`
+}
+
+type MessageTypeEnum string
+
+const (
+	MessageTypeOk    MessageTypeEnum = "ok"
+	MessageTypeError                 = "error"
+)
+
+type MessagesType struct {
+	ResultCode MessageTypeEnum `xml:"resultCode"`
+	Message    []Message       `xml:"message"`
+}
+
+type ANetApiResponse struct {
+	RefId        string        `xml:"refId,omitempty"`
+	MessagesType *MessagesType `xml:"messagesType,omitempty"`
+	SessionToken string        `xml:"sessionToken,omitempty"`
+}
+
+type PrePaidCard struct {
+	RequestAmount  string `xml:"requestAmount,omitempty"`
+	ApprovedAmount string `xml:"approvedAmount,omitempty"`
+	BalanceOnCard  string `xml:"balanceOnCard,omitempty"`
+}
+
+type Error struct {
+	ErrorCode string `xml:"errorCode,omitempty"`
+	ErrorText string `xml:"errorText,omitempty"`
+}
+
+type Errors struct {
+	Error []Error `xml:"error,omitempty"`
+}
+
+type SplitTenderPayment struct {
+	TransId            string `xml:"transId,omitempty"`
+	ResponseCode       string `xml:"responseCode,omitempty"`
+	ResponseToCustomer string `xml:"responseToCustomer,omitempty"`
+	AuthCode           string `xml:"authCode,omitempty"`
+	AccountNumber      string `xml:"accountNumber,omitempty"`
+	AccountType        string `xml:"accountType,omitempty"`
+	RequestAmount      string `xml:"requestAmount,omitempty"`
+	ApprovedAmount     string `xml:"approvedAmount,omitempty"`
+	BalanceOnCard      string `xml:"balanceOnCard,omitempty"`
+}
+
+type SplitTenderPayments struct {
+	SplitTenderPayment []SplitTenderPayment `xml:"splitTenderPayment,omitempty"`
+}
+
+type SecureAcceptance struct {
+	SecureAcceptanceUrl string `xml:"secureAcceptanceUrl,omitempty"`
+	PayerId             string `xml:"payerId,omitempty"`
+	PayerEmail          string `xml:"payerEmail,omitempty"`
+}
+
+type EmvTag struct {
+	Name      string `xml:"name,omitempty"`
+	Value     string `xml:"value,omitempty"`
+	Formatted string `xml:"formatted,omitempty"`
+}
+
+type Tags struct {
+	Tag []EmvTag `xml:"emvTag"`
+}
+
+type EmvResponse struct {
+	TlvData string `xml:"tlvData,omitempty"`
+	Tags    *Tags  `xml:"tags,omitempty"`
+}
+
+type CustomerProfileIdType struct {
+	CustomerProfileId        string `xml:"customerProfileId" validation:"required,numeric"`
+	CustomerPaymentProfileId string `xml:"customerPaymentProfileId,omitempty" validation:"numeric"`
+	CustomerAddressId        string `xml:"customerAddressId,omitempty" validation:"numeric"`
+}
+
+type TransactionResponse struct {
+	ResponseCode        string                 `xml:"responseCode,omitempty"`
+	RawResponseCode     string                 `xml:"rawResponseCode,omitempty"`
+	AuthCode            string                 `xml:"authCode,omitempty"`
+	AvsResultCode       string                 `xml:"avsResultCode,omitempty"`
+	CvvResultCode       string                 `xml:"cvvResultCode,omitempty"`
+	CavvResultCode      string                 `xml:"cavvResultCode,omitempty"`
+	TransId             string                 `xml:"transId,omitempty"`
+	TransHash           string                 `xml:"transHash,omitempty"`
+	TestRequest         string                 `xml:"testRequest,omitempty"`
+	AccountNumber       string                 `xml:"accountNumber,omitempty"`
+	EntryMode           string                 `xml:"entryMode,omitempty"`
+	AccountType         string                 `xml:"accountType,omitempty"`
+	SplitTenderId       string                 `xml:"splitTenderId,omitempty"`
+	PrePaidCard         *PrePaidCard           `xml:"prePaidCard,omitempty"`
+	Messages            *MessagesType          `xml:"messages,omitempty"`
+	Errors              *Errors                `xml:"errors,omitempty"`
+	SplitTenderPayments *SplitTenderPayments   `xml:"splitTenderPayments,omitempty"`
+	UserFields          *UserFields            `xml:"userFields,omitempty"`
+	ShipTo              *NameAndAddressType    `xml:"shipTo,omitempty"`
+	SecureAcceptance    *SecureAcceptance      `xml:"secureAcceptance,omitempty"`
+	EnvResponse         *EmvResponse           `xml:"envResponse,omitempty"`
+	TransHashSha2       string                 `xml:"transHashSha2,omitempty"`
+	Profile             *CustomerProfileIdType `xml:"profile,omitempty"`
+	// TODO Custom validator for alpha numeric space string
+	NetworkTransId string `xml:"networkTransId,omitempty" validation:"max=255"`
+}
+
+type CreateProfileResponse struct {
+}
+
+type CreateTransactionResponse struct {
+	ANetApiResponse
+	TransactionResponse TransactionResponse    `xml:"transactionResponse"`
+	ProfileResponse     *CreateProfileResponse `xml:"profileResponse,omitempty"`
 }
 
 type MerchantAuthentication struct {
