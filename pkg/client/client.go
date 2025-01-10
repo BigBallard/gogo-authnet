@@ -1,7 +1,7 @@
 package client
 
 import (
-	"authnet/pkg/auth"
+	"authnet/pkg/common"
 	"authnet/pkg/config"
 	"bytes"
 	"encoding/xml"
@@ -46,9 +46,9 @@ func NewAuthNetClient(config config.Config) AuthNetClient {
 	}
 }
 
-func (c *AuthNetClient) AuthenticateTest() (*auth.AuthenticateTestResponse, error) {
-	testRequest := auth.AuthenticateTestRequest{
-		MerchantAuthentication: auth.MerchantAuthentication{
+func (c *AuthNetClient) AuthenticateTest() (*common.AuthenticateTestResponse, error) {
+	testRequest := common.AuthenticateTestRequest{
+		MerchantAuthentication: common.MerchantAuthentication{
 			Name:           c.config.Auth.ApiLoginId,
 			TransactionKey: c.config.Auth.TransactionId,
 		},
@@ -70,7 +70,7 @@ func (c *AuthNetClient) AuthenticateTest() (*auth.AuthenticateTestResponse, erro
 		return nil, errors.Join(errors.New("unable to read response body"), reqErr)
 	}
 
-	var testResponse auth.AuthenticateTestResponse
+	var testResponse common.AuthenticateTestResponse
 	if uErr := xml.Unmarshal(resBytes, &testResponse); uErr != nil {
 		return nil, errors.Join(errors.New("unable to unmarshal response body"), reqErr)
 	}
