@@ -46,11 +46,18 @@ func NewAuthNetClient(config config.Config) AuthNetClient {
 	}
 }
 
+func (c *AuthNetClient) CreateMerchantAuthenticationType() common.MerchantAuthenticationType {
+	return common.MerchantAuthenticationType{
+		Name:           c.config.Auth.ApiLoginId,
+		TransactionKey: c.config.Auth.TransactionKey,
+	}
+}
+
 func (c *AuthNetClient) AuthenticateTest() (*common.AuthenticateTestResponse, error) {
 	testRequest := common.AuthenticateTestRequest{
 		MerchantAuthentication: common.MerchantAuthentication{
 			Name:           c.config.Auth.ApiLoginId,
-			TransactionKey: c.config.Auth.TransactionId,
+			TransactionKey: c.config.Auth.TransactionKey,
 		},
 	}
 	var testResponse common.AuthenticateTestResponse
@@ -76,7 +83,13 @@ func (c *AuthNetClient) SendRequest(req any, res any) error {
 		return errors.Join(errors.New("unable to read response body"), reqErr)
 	}
 	if uErr := xml.Unmarshal(resBytes, res); uErr != nil {
-		return errors.Join(errors.New("unable to unmarshal response body"), reqErr)
+		// check if response is ErrorResponse
+		var errResponse common.ErrorResponse
+		if ueErr := xml.Unmarshal(resBytes, &errResponse); ueErr != nil {
+			return errors.Join(errors.New("unable to unmarshal response body"), reqErr, ueErr)
+		} else {
+			return errors.Join(errors.New(errResponse.Messages.Message[0].Text), reqErr)
+		}
 	}
 	return nil
 }

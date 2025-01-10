@@ -37,7 +37,7 @@ type MerchantAuthenticationType struct {
 	Name string `xml:"name,omitempty" validation:"max=25"`
 	// TransactionKey the merchant's unique Transaction Key.
 	TransactionKey              string                           `xml:"transactionKey" validation:"required,max=16"`
-	SessionToken                string                           `xml:"sessionToken" validation:"required,max=20"`
+	SessionToken                string                           `xml:"sessionToken,omitempty" validation:"max=20"`
 	Password                    string                           `xml:"password,omitempty" validation:"max=40"`
 	ImpersonationAuthentication *ImpersonationAuthenticationType `xml:"impersonationAuthentication,omitempty"`
 	FingerPrint                 *FingerPrintType                 `xml:"fingerPrint,omitempty"`
@@ -189,7 +189,7 @@ type OrderType struct {
 	PurchaserVATRegistrationNumber string     `xml:"purchaserVATRegistrationNumber,omitempty" validation:"max=21"`
 	MerchantVATRegistrationNumber  string     `xml:"merchantVATRegistrationNumber,omitempty" validation:"max=21"`
 	VatInvoiceReferenceNumber      string     `xml:"vatInvoiceReferenceNumber,omitempty" validation:"max=15"`
-	PurchaserCode                  string     `json:"purchaserCode,omitempty" validation:"max=17"`
+	PurchaserCode                  string     `xml:"purchaserCode,omitempty" validation:"max=17"`
 	SummaryCommodityCode           string     `xml:"summaryCommodityCode,omitempty" validation:"max=4"`
 	PurchaseOrderDateUTC           *time.Time `xml:"purchaseOrderDateUTC,omitempty"`
 	SupplierOrderReference         string     `xml:"supplierOrderReference,omitempty" validation:"max=25"`
@@ -329,7 +329,7 @@ type ProcessingOptions struct {
 	IsStoredCredentials     *bool `xml:"isStoredCredentials,omitempty"`
 }
 
-type MerchantInitTransReasonEnum string
+type MerchantInitTransReasonEnum = string
 
 const (
 	MerchantInitTransReasonResubmission    MerchantInitTransReasonEnum = "resubmission"
@@ -340,9 +340,9 @@ const (
 
 type SubsequentAuthInformation struct {
 	// TODO Customer validator for alpha numeric space string
-	OriginalNetworkTransId string                       `xml:"originalNetworkTransId,omitempty" validation:"max=255"`
-	OriginalAuthAmount     *float64                     `xml:"originalAuthAmount,omitempty"`
-	Reason                 *MerchantInitTransReasonEnum `xml:"reason,omitempty"`
+	OriginalNetworkTransId string                      `xml:"originalNetworkTransId,omitempty" validation:"max=255"`
+	OriginalAuthAmount     *float64                    `xml:"originalAuthAmount,omitempty"`
+	Reason                 MerchantInitTransReasonEnum `xml:"reason,omitempty"`
 }
 
 type OtherTaxType struct {
@@ -354,7 +354,7 @@ type OtherTaxType struct {
 	VatTaxAmount       *float64 `xml:"vatTaxAmount,omitempty"`
 }
 
-type AuthIndicatorEnum string
+type AuthIndicatorEnum = string
 
 const (
 	AuthIndicatorPre   AuthIndicatorEnum = "pre"
@@ -362,11 +362,10 @@ const (
 )
 
 type AuthorizationIndicatorType struct {
-	AuthorizationIndicator *AuthIndicatorEnum `xml:"authorizationIndicator,omitempty"`
+	AuthorizationIndicator AuthIndicatorEnum `xml:"authorizationIndicator,omitempty"`
 }
 
 type TransactionRequestType struct {
-	ANetApiRequest
 	TransactionType            string                      `xml:"transactionType,omitempty"`
 	Amount                     *float64                    `xml:"amount,omitempty"`
 	CurrencyCode               string                      `xml:"currencyCode,omitempty"`
@@ -388,7 +387,7 @@ type TransactionRequestType struct {
 	Customer                   *CustomerDataType           `xml:"customer,omitempty"`
 	BillTo                     *CustomerAddressType        `xml:"billTo,omitempty"`
 	ShipTo                     *NameAndAddressType         `xml:"shipTo,omitempty"`
-	CustomerIp                 string                      `xml:"customerIp,omitempty"`
+	CustomerIp                 string                      `xml:"customerIP,omitempty"`
 	CardHolderAuthentication   *CCAuthenticationType       `xml:"cardHolderAuthentication,omitempty"`
 	Retail                     *TransRetailInfoType        `xml:"retail,omitempty"`
 	EmployeeId                 string                      `xml:"employeeId,omitempty"`
@@ -405,7 +404,7 @@ type TransactionRequestType struct {
 	AuthorizationIndicatorType *AuthorizationIndicatorType `xml:"authorizationIndicatorType,omitempty"`
 }
 
-type MessageTypeEnum string
+type MessageTypeEnum = string
 
 const (
 	MessageTypeOk    MessageTypeEnum = "ok"
@@ -512,8 +511,15 @@ type TransactionResponse struct {
 type CreateProfileResponse struct {
 }
 
+type CreateTransactionRequestType struct {
+	ANetApiRequest
+	XMLName                xml.Name               `xml:"AnetApi/xml/v1/schema/AnetApiSchema.xsd createTransactionRequest"`
+	TransactionRequestType TransactionRequestType `xml:"transactionRequest"`
+}
+
 type CreateTransactionResponse struct {
 	ANetApiResponse
+	XMLName             xml.Name               `xml:"AnetApi/xml/v1/schema/AnetApiSchema.xsd createTransactionResponse"`
 	TransactionResponse TransactionResponse    `xml:"transactionResponse"`
 	ProfileResponse     *CreateProfileResponse `xml:"profileResponse,omitempty"`
 }
@@ -528,24 +534,23 @@ type AuthenticateTestRequest struct {
 	RefId                  *string                `xml:"refId,omitempty"`
 }
 
-type ResultCode string
-
-const (
-	ResultCodeOk    ResultCode = "Ok"
-	ResultCodeError ResultCode = "Error"
-)
-
 type Message struct {
 	Code string `xml:"code"`
 	Text string `xml:"text"`
 }
 
 type Messages struct {
-	ResultCode ResultCode `xml:"resultCode"`
-	Message    []Message  `xml:"message"`
+	ResultCode MessageTypeEnum `xml:"resultCode"`
+	Message    []Message       `xml:"message"`
 }
 
 type AuthenticateTestResponse struct {
 	RefId    *string   `xml:"refId,omitempty"`
 	Messages *Messages `xml:"messages,omitempty"`
+}
+
+type ErrorResponse struct {
+	ANetApiResponse
+	XMLName  xml.Name `xml:"AnetApi/xml/v1/schema/AnetApiSchema.xsd ErrorResponse"`
+	Messages Messages `xml:"messages"`
 }
