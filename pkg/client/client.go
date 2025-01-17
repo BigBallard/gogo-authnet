@@ -65,31 +65,58 @@ func (c *AuthNetClient) AuthenticateTest() (*common.AuthenticateTestResponse, er
 	return &testResponse, rErr
 }
 
+// RequestError contains the common.ErrorResponse or errors from some other cause. Either could be populated or one of
+// them. This fulfills the error interface and provides the Error() function.
+type RequestError struct {
+	Response *common.ErrorResponse
+	Err      error
+}
+
+func (e *RequestError) Error() string {
+	if e.Response != nil {
+		messageErr := errors.New(e.Response.Messages.Message[0].Text)
+		if e.Err != nil {
+			messageErr = errors.Join(messageErr, e.Err)
+		}
+		return messageErr.Error()
+	} else if e.Err != nil {
+		return e.Err.Error()
+	} else {
+		return ""
+	}
+}
+
 // SendRequest takes a request type instance and a response type instance. req can be passed either by reference or by
 // value. The res however, is required to be a reference due to the unmarshalling phase of the request.
-func (c *AuthNetClient) SendRequest(req any, res any) error {
+func (c *AuthNetClient) SendRequest(req any, res any) *RequestError {
+	var requestError RequestError
 	bodyBytes, mErr := xml.Marshal(req)
 	if mErr != nil {
-		return errors.Join(errors.New("unable to marshal request body"), mErr)
+		requestError.Err = errors.Join(errors.New("unable to marshal request body"), mErr)
+		return &requestError
 	}
 	response, reqErr := c.httpClient.Post(c.apiUrl, "text/xml", bytes.NewReader(bodyBytes))
 	if reqErr != nil {
-		return errors.Join(errors.New("unable to make http request"), reqErr)
+		requestError.Err = errors.Join(errors.New("unable to make http request"), reqErr)
+		return &requestError
 	}
 	defer response.Body.Close()
 	resBytes := make([]byte, response.ContentLength)
 	nRead, readErr := response.Body.Read(resBytes)
 	if nRead != int(response.ContentLength) && readErr == io.EOF {
-		return errors.Join(errors.New("unable to read response body"), reqErr)
+		requestError.Err = errors.Join(errors.New("unable to read response body"), reqErr)
+		return &requestError
 	}
 	if uErr := xml.Unmarshal(resBytes, res); uErr != nil {
 		// check if response is ErrorResponse
 		var errResponse common.ErrorResponse
 		if ueErr := xml.Unmarshal(resBytes, &errResponse); ueErr != nil {
-			return errors.Join(errors.New("unable to unmarshal response body"), reqErr, ueErr)
+			requestError.Err = errors.Join(errors.New("unable to unmarshal response body"), reqErr, ueErr)
 		} else {
-			return errors.Join(errors.New(errResponse.Messages.Message[0].Text), reqErr)
+			requestError.Err = reqErr
+			requestError.Response = &errResponse
 		}
+		return &requestError
 	}
 	return nil
 }

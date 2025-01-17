@@ -267,6 +267,10 @@ type CustomerAddressType struct {
 	Email       string `xml:"email,omitempty"`
 }
 
+type CustomerAddressExType struct {
+	// TODO Implement CustomerAddressExType from scheme
+}
+
 type NameAndAddressType struct {
 	FirstName string `xml:"firstName,omitempty" validation:"max=50"`
 	LastName  string `xml:"lastName,omitempty" validation:"max=50"`
@@ -365,8 +369,16 @@ type AuthorizationIndicatorType struct {
 	AuthorizationIndicator AuthIndicatorEnum `xml:"authorizationIndicator,omitempty"`
 }
 
+type TransactionTypeEnum = string
+
+const (
+	TransactionTypePriorAuthCaptureTransaction TransactionTypeEnum = "priorAuthCaptureTransaction"
+	TransactionTypeAuthOnlyTransaction                             = "authOnlyTransaction"
+	TransactionTypeAuthCaptureTransaction                          = "authCaptureTransaction"
+)
+
 type TransactionRequestType struct {
-	TransactionType            string                      `xml:"transactionType,omitempty"`
+	TransactionType            TransactionTypeEnum         `xml:"transactionType,omitempty"`
 	Amount                     *float64                    `xml:"amount,omitempty"`
 	CurrencyCode               string                      `xml:"currencyCode,omitempty"`
 	Payment                    *PaymentType                `xml:"payment,omitempty"`
@@ -418,7 +430,7 @@ type MessagesType struct {
 
 type ANetApiResponse struct {
 	RefId        string        `xml:"refId,omitempty"`
-	MessagesType *MessagesType `xml:"messagesType,omitempty"`
+	Messages     *MessagesType `xml:"messages,omitempty"`
 	SessionToken string        `xml:"sessionToken,omitempty"`
 }
 
@@ -553,4 +565,46 @@ type ErrorResponse struct {
 	ANetApiResponse
 	XMLName  xml.Name `xml:"AnetApi/xml/v1/schema/AnetApiSchema.xsd ErrorResponse"`
 	Messages Messages `xml:"messages"`
+}
+
+type GetCustomerProfileRequest struct {
+	ANetApiRequest
+	XMLName              xml.Name `xml:"AnetApi/xml/v1/schema/AnetApiSchema.xsd getCustomerProfileRequest"`
+	CustomerProfileId    string   `xml:"customerProfileId,omitempty" validation:"numeric"`
+	MerchantCustomerId   string   `xml:"merchantCustomerId,omitempty" validation:"max=20"`
+	Email                string   `xml:"email,omitempty" validation:"email"`
+	UnmaskExpirationDate *bool    `xml:"unmaskExpirationDate,omitempty"`
+	IncludeIssuerInfo    *bool    `xml:"includeIssuerInfo,omitempty"`
+}
+
+type CustomerProfileExType struct {
+	CustomerProfileId string `xml:"customerProfileId,omitempty" validation:"numeric"`
+}
+
+type CustomerPaymentProfileMaskedType struct {
+	// TODO Implement CustomerPaymentProfileMaskedType from scheme
+}
+
+type CustomerProfileTypeEnum = string
+
+const (
+	CustomerProfileTypeRegular CustomerProfileTypeEnum = "regular"
+	CustomerProfileTypeGuest                           = "guest"
+)
+
+type CustomerProfileMaskedType struct {
+	CustomerProfileExType
+	PaymentProfiles []CustomerPaymentProfileMaskedType `xml:"paymentProfile,omitempty"`
+	ShipToList      []CustomerAddressExType            `xml:"shipToList,omitempty"`
+	ProfileType     *CustomerProfileTypeEnum           `xml:"profileType,omitempty"`
+}
+
+type SubscriptionIdList struct {
+	SubscriptionId []string `xml:"subscriptionId,omitempty" validation:"numeric"`
+}
+
+type GetCustomerProfileResponse struct {
+	ANetApiResponse
+	XMLName         xml.Name            `xml:"AnetApi/xml/v1/schema/AnetApiSchema.xsd getCustomerProfileResponse"`
+	SubscriptionIds *SubscriptionIdList `xml:"subscriptionIds,omitempty"`
 }

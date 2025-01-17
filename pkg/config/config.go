@@ -21,8 +21,8 @@ type Config struct {
 
 // Auth provides API authorization credentials
 type Auth struct {
-	ApiLoginId     string `json:"api-login-id"`
-	TransactionKey string `json:"transaction-id"`
+	ApiLoginId     string `json:"api-login-id,omitempty"`
+	TransactionKey string `json:"transaction-key,omitempty"`
 }
 
 // LoadConfigFile attempts to load the config JSON file from the path provided. Aggregate determines if the config will
