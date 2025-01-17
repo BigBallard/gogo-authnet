@@ -1,4 +1,4 @@
-package util
+package gogo_authnet
 
 func Float64RefFromInt(value int) *float64 {
 	f := float64(value)

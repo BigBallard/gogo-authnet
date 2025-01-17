@@ -1,49 +1,45 @@
-package pkg
+package gogo_authnet
 
 import (
-	"authnet/pkg/client"
-	"authnet/pkg/common"
-	"authnet/pkg/config"
-	"authnet/pkg/util"
 	"testing"
 )
 
-var ac *client.AuthNetClient
+var ac *AuthNetClient
 
 func init() {
-	conf, loadErr := config.LoadConfigFromEnv(false)
+	conf, loadErr := LoadConfigFromEnv(false)
 	if loadErr != nil {
 		panic(loadErr)
 	}
-	newClient := client.NewAuthNetClient(*conf)
+	newClient := NewAuthNetClient(*conf)
 	ac = &newClient
 }
 
 func Test_ChargeCreditCardRequest(t *testing.T) {
-	var response common.CreateTransactionResponse
-	request := common.CreateTransactionRequestType{
-		ANetApiRequest: common.ANetApiRequest{
+	var response CreateTransactionResponse
+	request := CreateTransactionRequestType{
+		ANetApiRequest: ANetApiRequest{
 			MerchantAuthentication: ac.CreateMerchantAuthenticationType(),
 			RefId:                  "12345",
 		},
-		TransactionRequestType: common.TransactionRequestType{
-			TransactionType: common.TransactionTypeAuthCaptureTransaction,
-			Amount:          util.Float64RefFromInt(5),
-			Payment: &common.PaymentType{
-				CreditCard: &common.CreditCardType{
-					CreditCardSimpleType: common.CreditCardSimpleType{
+		TransactionRequestType: TransactionRequestType{
+			TransactionType: TransactionTypeAuthCaptureTransaction,
+			Amount:          Float64RefFromInt(5),
+			Payment: &PaymentType{
+				CreditCard: &CreditCardType{
+					CreditCardSimpleType: CreditCardSimpleType{
 						CardNumber:     "5424000000000015",
 						ExpirationDate: "2025-12",
 					},
 					CardCode: "999",
 				},
 			},
-			Order: &common.OrderType{
+			Order: &OrderType{
 				InvoiceNumber: "INV-12345",
 				Description:   "Product Description",
 			},
-			LineItems: &common.ArrayOfLineItem{
-				LineItem: []common.LineItemType{
+			LineItems: &ArrayOfLineItem{
+				LineItem: []LineItemType{
 					{
 						ItemId:      "1",
 						Name:        "Vase",
@@ -53,27 +49,27 @@ func Test_ChargeCreditCardRequest(t *testing.T) {
 					},
 				},
 			},
-			Tax: &common.ExtendedAmountType{
+			Tax: &ExtendedAmountType{
 				Amount:      4.26,
 				Name:        "level2 tax name",
 				Description: "level2 tax",
 			},
-			Duty: &common.ExtendedAmountType{
+			Duty: &ExtendedAmountType{
 				Amount:      8.55,
 				Name:        "duty name",
 				Description: "duty description",
 			},
-			Shipping: &common.ExtendedAmountType{
+			Shipping: &ExtendedAmountType{
 				Amount:      4.26,
 				Name:        "level2 shipping name",
 				Description: "shipping description",
 			},
 			PoNumber: "456654",
-			Customer: &common.CustomerDataType{
+			Customer: &CustomerDataType{
 				Id: "99999456654",
 			},
-			BillTo: &common.CustomerAddressType{
-				NameAndAddressType: common.NameAndAddressType{
+			BillTo: &CustomerAddressType{
+				NameAndAddressType: NameAndAddressType{
 					FirstName: "China",
 					LastName:  "Bayles",
 					Company:   "Thyme for Tea",
@@ -85,8 +81,8 @@ func Test_ChargeCreditCardRequest(t *testing.T) {
 				},
 			},
 			CustomerIp: "192.168.1.1",
-			UserFields: &common.UserFields{
-				UserField: []common.UserField{
+			UserFields: &UserFields{
+				UserField: []UserField{
 					{
 						Name:  "MerchantDefinedFieldName1",
 						Value: "MerchantDefinedFieldValue1",
@@ -97,16 +93,16 @@ func Test_ChargeCreditCardRequest(t *testing.T) {
 					},
 				},
 			},
-			ProcessingOptions: &common.ProcessingOptions{
-				IsSubsequentAuth: util.BoolFalseRef(),
+			ProcessingOptions: &ProcessingOptions{
+				IsSubsequentAuth: BoolFalseRef(),
 			},
-			SubsequentAuthInformation: &common.SubsequentAuthInformation{
+			SubsequentAuthInformation: &SubsequentAuthInformation{
 				OriginalNetworkTransId: "1234567890",
-				OriginalAuthAmount:     util.Float64RefFromInt(45),
-				Reason:                 common.MerchantInitTransReasonResubmission,
+				OriginalAuthAmount:     Float64RefFromInt(45),
+				Reason:                 MerchantInitTransReasonResubmission,
 			},
-			AuthorizationIndicatorType: &common.AuthorizationIndicatorType{
-				AuthorizationIndicator: common.AuthIndicatorFinal,
+			AuthorizationIndicatorType: &AuthorizationIndicatorType{
+				AuthorizationIndicator: AuthIndicatorFinal,
 			},
 		},
 	}
@@ -115,33 +111,33 @@ func Test_ChargeCreditCardRequest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if response.TransactionResponse.Messages.ResultCode == common.MessageTypeError {
+	if response.TransactionResponse.Messages.ResultCode == MessageTypeError {
 		t.Fatal(response.TransactionResponse.Messages.Message[0].Text)
 	}
 
 }
 
 func Test_AuthorizeCreditCardRequest(t *testing.T) {
-	var response common.CreateTransactionResponse
-	request := common.CreateTransactionRequestType{
-		ANetApiRequest: common.ANetApiRequest{
+	var response CreateTransactionResponse
+	request := CreateTransactionRequestType{
+		ANetApiRequest: ANetApiRequest{
 			MerchantAuthentication: ac.CreateMerchantAuthenticationType(),
 			RefId:                  "12345",
 		},
-		TransactionRequestType: common.TransactionRequestType{
-			TransactionType: common.TransactionTypeAuthOnlyTransaction,
-			Amount:          util.Float64RefFromInt(5),
-			Payment: &common.PaymentType{
-				CreditCard: &common.CreditCardType{
-					CreditCardSimpleType: common.CreditCardSimpleType{
+		TransactionRequestType: TransactionRequestType{
+			TransactionType: TransactionTypeAuthOnlyTransaction,
+			Amount:          Float64RefFromInt(5),
+			Payment: &PaymentType{
+				CreditCard: &CreditCardType{
+					CreditCardSimpleType: CreditCardSimpleType{
 						CardNumber:     "5424000000000015",
 						ExpirationDate: "2025-12",
 					},
 					CardCode: "999",
 				},
 			},
-			LineItems: &common.ArrayOfLineItem{
-				LineItem: []common.LineItemType{
+			LineItems: &ArrayOfLineItem{
+				LineItem: []LineItemType{
 					{
 						ItemId:      "1",
 						Name:        "Vase",
@@ -151,27 +147,27 @@ func Test_AuthorizeCreditCardRequest(t *testing.T) {
 					},
 				},
 			},
-			Tax: &common.ExtendedAmountType{
+			Tax: &ExtendedAmountType{
 				Amount:      4.26,
 				Name:        "level2 tax name",
 				Description: "level2 tax",
 			},
-			Duty: &common.ExtendedAmountType{
+			Duty: &ExtendedAmountType{
 				Amount:      8.55,
 				Name:        "duty name",
 				Description: "duty description",
 			},
-			Shipping: &common.ExtendedAmountType{
+			Shipping: &ExtendedAmountType{
 				Amount:      4.26,
 				Name:        "level2 shipping name",
 				Description: "shipping description",
 			},
 			PoNumber: "456654",
-			Customer: &common.CustomerDataType{
+			Customer: &CustomerDataType{
 				Id: "99999456654",
 			},
-			BillTo: &common.CustomerAddressType{
-				NameAndAddressType: common.NameAndAddressType{
+			BillTo: &CustomerAddressType{
+				NameAndAddressType: NameAndAddressType{
 					FirstName: "Ellen",
 					LastName:  "Johnson",
 					Company:   "Souveniropolis",
@@ -182,7 +178,7 @@ func Test_AuthorizeCreditCardRequest(t *testing.T) {
 					Country:   "US",
 				},
 			},
-			ShipTo: &common.NameAndAddressType{
+			ShipTo: &NameAndAddressType{
 				FirstName: "China",
 				LastName:  "Bayles",
 				Company:   "Thyme for Tea",
@@ -193,8 +189,8 @@ func Test_AuthorizeCreditCardRequest(t *testing.T) {
 				Country:   "US",
 			},
 			CustomerIp: "192.168.1.1",
-			UserFields: &common.UserFields{
-				UserField: []common.UserField{
+			UserFields: &UserFields{
+				UserField: []UserField{
 					{
 						Name:  "MerchantDefinedFieldName1",
 						Value: "MerchantDefinedFieldValue1",
@@ -205,16 +201,16 @@ func Test_AuthorizeCreditCardRequest(t *testing.T) {
 					},
 				},
 			},
-			ProcessingOptions: &common.ProcessingOptions{
-				IsSubsequentAuth: util.BoolFalseRef(),
+			ProcessingOptions: &ProcessingOptions{
+				IsSubsequentAuth: BoolFalseRef(),
 			},
-			SubsequentAuthInformation: &common.SubsequentAuthInformation{
+			SubsequentAuthInformation: &SubsequentAuthInformation{
 				OriginalNetworkTransId: "123456789NNNH",
-				OriginalAuthAmount:     util.Float64RefFromInt(45),
-				Reason:                 common.MerchantInitTransReasonResubmission,
+				OriginalAuthAmount:     Float64RefFromInt(45),
+				Reason:                 MerchantInitTransReasonResubmission,
 			},
-			AuthorizationIndicatorType: &common.AuthorizationIndicatorType{
-				AuthorizationIndicator: common.AuthIndicatorPre,
+			AuthorizationIndicatorType: &AuthorizationIndicatorType{
+				AuthorizationIndicator: AuthIndicatorPre,
 			},
 		},
 	}
@@ -223,21 +219,21 @@ func Test_AuthorizeCreditCardRequest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if response.TransactionResponse.Messages.ResultCode == common.MessageTypeError {
+	if response.TransactionResponse.Messages.ResultCode == MessageTypeError {
 		t.Fatal(response.TransactionResponse.Messages.Message[0].Text)
 	}
 }
 
 func Test_PreviouslyAuthorizedAmountRequest(t *testing.T) {
-	var response common.CreateTransactionResponse
-	request := common.CreateTransactionRequestType{
-		ANetApiRequest: common.ANetApiRequest{
+	var response CreateTransactionResponse
+	request := CreateTransactionRequestType{
+		ANetApiRequest: ANetApiRequest{
 			MerchantAuthentication: ac.CreateMerchantAuthenticationType(),
 			RefId:                  "12345",
 		},
-		TransactionRequestType: common.TransactionRequestType{
-			TransactionType: common.TransactionTypePriorAuthCaptureTransaction,
-			Amount:          util.Float64RefFromInt(5),
+		TransactionRequestType: TransactionRequestType{
+			TransactionType: TransactionTypePriorAuthCaptureTransaction,
+			Amount:          Float64RefFromInt(5),
 			RefTransId:      "1234567890",
 		},
 	}
@@ -246,7 +242,7 @@ func Test_PreviouslyAuthorizedAmountRequest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if response.TransactionResponse.Messages.ResultCode == common.MessageTypeError {
+	if response.TransactionResponse.Messages.ResultCode == MessageTypeError {
 		t.Fatal(response.TransactionResponse.Messages.Message[0].Text)
 	}
 }

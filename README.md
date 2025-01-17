@@ -50,35 +50,32 @@ If no error is returned from the `SendRequest` call, then the response should be
 
 ```go
 import (
-    "github.com/BigBallard/gogo-authnet/config"
-    "github.com/BigBallard/gogo-authnet/client"
-    "github.com/BigBallard/gogo-authnet/common"
-    "github.com/BigBallard/gogo-authnet/util"
+    authnet "github.com/BigBallard/gogo-authnet"
 )
 
 func main() {
-    conf, loadErr := config.LoadConfigFromEnv()
+    conf, loadErr := authnet.LoadConfigFromEnv()
     if loadErr != nil {
 		panic(loadErr)
     }
 	
-    client := client.NewAuthNetClient(*conf)
+    client := authnet.NewAuthNetClient(*conf)
 	
-    if _, authErr := client.AuthenticateTest(); authErr != nil {
+    if _, authErr := authnet.AuthenticateTest(); authErr != nil {
         pani(authErr)
     }
 
-    var response common.GetCustomerProfileResponse
+    var response authnet.GetCustomerProfileResponse
 	
-    request := common.GetCustomerProfileRequest{
-        ANetApiRequest: common.ANetApiRequest{
-            MerchantAuthentication: client.CreateMerchantAuthenticationType(),
+    request := authnet.GetCustomerProfileRequest{
+        ANetApiRequest: authnet.ANetApiRequest{
+            MerchantAuthentication: authnet.CreateMerchantAuthenticationType(),
         },
         CustomerProfileId: "10000",
-        IncludeIssuerInfo: util.BoolTrueRef(),
+        IncludeIssuerInfo: authnet.BoolTrueRef(),
     }
 
-    if rErr := client.SendRequest(request, &response); rErr != nil {
+    if rErr := authnet.SendRequest(request, &response); rErr != nil {
         panic(rErr)
     }
     ...

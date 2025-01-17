@@ -1,4 +1,4 @@
-package common
+package gogo_authnet
 
 import (
 	"encoding/xml"

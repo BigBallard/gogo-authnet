@@ -1,12 +1,11 @@
-package client
+package gogo_authnet
 
 import (
-	"authnet/pkg/config"
 	"testing"
 )
 
 func Test_ConnectToSandbox(t *testing.T) {
-	conf, loadErr := config.LoadConfigFromEnv(false)
+	conf, loadErr := LoadConfigFromEnv(false)
 	if loadErr != nil {
 		t.Fatal(loadErr)
 	}

@@ -1,8 +1,6 @@
-package client
+package gogo_authnet
 
 import (
-	"authnet/pkg/common"
-	"authnet/pkg/config"
 	"bytes"
 	"encoding/xml"
 	"errors"
@@ -14,12 +12,12 @@ import (
 )
 
 type AuthNetClient struct {
-	config     config.Config
+	config     Config
 	apiUrl     string
 	httpClient http.Client
 }
 
-func NewAuthNetClient(config config.Config) AuthNetClient {
+func NewAuthNetClient(config Config) AuthNetClient {
 	transport := &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{
@@ -46,21 +44,21 @@ func NewAuthNetClient(config config.Config) AuthNetClient {
 	}
 }
 
-func (c *AuthNetClient) CreateMerchantAuthenticationType() common.MerchantAuthenticationType {
-	return common.MerchantAuthenticationType{
+func (c *AuthNetClient) CreateMerchantAuthenticationType() MerchantAuthenticationType {
+	return MerchantAuthenticationType{
 		Name:           c.config.Auth.ApiLoginId,
 		TransactionKey: c.config.Auth.TransactionKey,
 	}
 }
 
-func (c *AuthNetClient) AuthenticateTest() (*common.AuthenticateTestResponse, error) {
-	testRequest := common.AuthenticateTestRequest{
-		MerchantAuthentication: common.MerchantAuthentication{
+func (c *AuthNetClient) AuthenticateTest() (*AuthenticateTestResponse, error) {
+	testRequest := AuthenticateTestRequest{
+		MerchantAuthentication: MerchantAuthentication{
 			Name:           c.config.Auth.ApiLoginId,
 			TransactionKey: c.config.Auth.TransactionKey,
 		},
 	}
-	var testResponse common.AuthenticateTestResponse
+	var testResponse AuthenticateTestResponse
 	rErr := c.SendRequest(testRequest, &testResponse)
 	return &testResponse, rErr
 }
@@ -68,7 +66,7 @@ func (c *AuthNetClient) AuthenticateTest() (*common.AuthenticateTestResponse, er
 // RequestError contains the common.ErrorResponse or errors from some other cause. Either could be populated or one of
 // them. This fulfills the error interface and provides the Error() function.
 type RequestError struct {
-	Response *common.ErrorResponse
+	Response *ErrorResponse
 	Err      error
 }
 
@@ -109,7 +107,7 @@ func (c *AuthNetClient) SendRequest(req any, res any) *RequestError {
 	}
 	if uErr := xml.Unmarshal(resBytes, res); uErr != nil {
 		// check if response is ErrorResponse
-		var errResponse common.ErrorResponse
+		var errResponse ErrorResponse
 		if ueErr := xml.Unmarshal(resBytes, &errResponse); ueErr != nil {
 			requestError.Err = errors.Join(errors.New("unable to unmarshal response body"), reqErr, ueErr)
 		} else {
