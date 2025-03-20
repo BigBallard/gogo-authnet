@@ -375,6 +375,8 @@ const (
 	TransactionTypePriorAuthCaptureTransaction TransactionTypeEnum = "priorAuthCaptureTransaction"
 	TransactionTypeAuthOnlyTransaction                             = "authOnlyTransaction"
 	TransactionTypeAuthCaptureTransaction                          = "authCaptureTransaction"
+	TransactionTypeRefundTransaction                               = "refundTransaction"
+	TransactionTypeVoidTransaction                                 = "voidTransaction"
 )
 
 type TransactionRequestType struct {

@@ -5,6 +5,10 @@ func Float64RefFromInt(value int) *float64 {
 	return &f
 }
 
+func Float64RefFromFloat(value float64) *float64 {
+	return &value
+}
+
 func BoolTrueRef() *bool {
 	b := true
 	return &b

@@ -106,8 +106,8 @@ func (c *AuthNetClient) SendRequest(req any, res any) *RequestError {
 		return &requestError
 	}
 	if uErr := xml.Unmarshal(resBytes, res); uErr != nil {
-		// check if response is ErrorResponse
 		var errResponse ErrorResponse
+		// check if response is ErrorResponse
 		if ueErr := xml.Unmarshal(resBytes, &errResponse); ueErr != nil {
 			requestError.Err = errors.Join(errors.New("unable to unmarshal response body"), reqErr, ueErr)
 		} else {
