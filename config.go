@@ -1,4 +1,4 @@
-package gogo_authnet
+package authnet
 
 import (
 	"encoding/json"

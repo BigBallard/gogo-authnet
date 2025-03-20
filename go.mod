@@ -1,3 +1,3 @@
-module gogo_authnet
+module github.com/BigBallard/gogo-authnet
 
-go 1.23
+go 1.20
