@@ -7,7 +7,7 @@ import (
 var ac *AuthNetClient
 
 func init() {
-	conf, loadErr := LoadConfigFromEnv(false)
+	conf, loadErr := LoadConfigFromEnv()
 	if loadErr != nil {
 		panic(loadErr)
 	}
