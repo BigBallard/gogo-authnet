@@ -29,13 +29,16 @@ type Auth struct {
 // aggregate applies the configuration values set through the CLI and the environment variables.
 func aggregate(config *Config) {
 	arguments := os.Args[1:]
-	for i := 0; i < len(arguments); i++ {
+	argLen := len(arguments)
+	for i := 0; i < argLen; i++ {
 		arg := arguments[i]
 		// Not an argument
 		if !strings.HasPrefix(arg, "-") {
 			continue
 		}
-
+		if i+1 > argLen {
+			break
+		}
 		value := arguments[i+1]
 		i++
 		switch arg {
